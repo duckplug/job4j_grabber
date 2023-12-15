@@ -16,11 +16,9 @@ import static org.quartz.SimpleScheduleBuilder.*;
 
 public class AlertRabbit {
 
-    private static Connection connection;
-
     public static void main(String[] args) throws Exception {
         try {
-            connection = getConnection();
+            Connection connect = getConnection();
             /*
              * 1. Конфигурирование
              * Начало работы происходит с создания класса управляющего всеми работами.
@@ -28,13 +26,15 @@ public class AlertRabbit {
              */
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
+            JobDataMap dataConnect = new JobDataMap();
+            dataConnect.put("connect", connect);
             /*
              * 2. Создание задачи
              * quartz каждый раз создает объект с типом org.quartz. Job.
              * Внутри этого класса нужно описать требуемые действия.
              * В нашем случае - это вывод на консоль текста.
              */
-            JobDetail job = newJob(Rabbit.class).build();
+            JobDetail job = newJob(Rabbit.class).usingJobData(dataConnect).build();
             /*
              * 3. Создание расписания
              * Конструкция настраивает периодичность запуска. В нашем случае,
@@ -57,7 +57,6 @@ public class AlertRabbit {
             scheduler.scheduleJob(job, trigger);
             Thread.sleep(10000);
             scheduler.shutdown();
-            connection.close();
         } catch (SchedulerException e) {
             e.printStackTrace();
         }
@@ -67,16 +66,17 @@ public class AlertRabbit {
         @Override
         public void execute(JobExecutionContext context) {
             System.out.println("Rabbit runs here ...");
-            try (PreparedStatement ps = connection
-                    /*Добавление кортежа в таблицу rabbit в схеме grabber.
-                    Синтаксис добавления кортежа: имя_схемы.имя_таблицы...
-                     */
-                    .prepareStatement("INSERT INTO grabber.rabbit(created_date) VALUES(?)")) {
-                SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-                Timestamp ts = Timestamp
-                        .valueOf(sf.format(new Date()));
-                ps.setTimestamp(1, ts);
-                ps.execute();
+            try (Connection connect = getConnection()) {
+                /* Добавление кортежа в таблицу rabbit в схеме grabber.
+                   Синтаксис добавления кортежа: имя_схемы.имя_таблицы...
+                 */
+                PreparedStatement ps = connect
+                        .prepareStatement("INSERT INTO grabber.rabbit(created_date) VALUES(?)");
+                    SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                    Timestamp ts = Timestamp
+                            .valueOf(sf.format(new Date()));
+                    ps.setTimestamp(1, ts);
+                    ps.execute();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -98,10 +98,9 @@ public class AlertRabbit {
     /* отдельный метод для подключения к БД */
     private static Connection getConnection() throws Exception {
         Class.forName(propTime().getProperty("jdbc.driver"));
-        connection = DriverManager.getConnection(propTime()
+        return DriverManager.getConnection(propTime()
                 .getProperty("url"), propTime()
                 .getProperty("username"), propTime()
                 .getProperty("password"));
-        return connection;
     }
 }

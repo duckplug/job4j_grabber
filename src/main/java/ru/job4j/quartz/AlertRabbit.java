@@ -66,7 +66,8 @@ public class AlertRabbit {
         @Override
         public void execute(JobExecutionContext context) {
             System.out.println("Rabbit runs here ...");
-            try (Connection connect = getConnection()) {
+            try (Connection connect = (Connection) context.getJobDetail()
+                    .getJobDataMap().get("connect")) {
                 /* Добавление кортежа в таблицу rabbit в схеме grabber.
                    Синтаксис добавления кортежа: имя_схемы.имя_таблицы...
                  */

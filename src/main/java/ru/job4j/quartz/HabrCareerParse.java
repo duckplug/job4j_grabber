@@ -8,11 +8,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 public class HabrCareerParse {
-
     /* У нас есть три константы. Первая это ссылка на сайт в целом.
     Вторая указывает на страницу с вакансиями непосредственно,
     а третья добавляет параметры запроса */
@@ -43,7 +40,7 @@ public class HabrCareerParse {
              */
             Element date = row.select(".vacancy-card__date").first();
             Element dateTime = date.child(0);
-            String vacancyDate = dateTime.text();
+            String vacancyDate = dateTime.attr("datetime");
             /* Получаем данные. text() возвращает все содержимое элемента в виде текста,
              т.е. весь текст что находится вне тегов HTML. Ссылка находится в виде атрибута,
               поэтому ее значение надо получить как значение атрибута.

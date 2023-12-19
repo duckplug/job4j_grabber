@@ -16,9 +16,9 @@ public class HabrCareerParse {
     /* У нас есть три константы. Первая это ссылка на сайт в целом.
     Вторая указывает на страницу с вакансиями непосредственно,
     а третья добавляет параметры запроса */
-    private static final String SOURCE_LINK = "https://career.habr.com";
     public static final String PREFIX = "/vacancies?page=";
     public static final String SUFFIX = "&q=Java%20developer&type=all";
+    private static final String SOURCE_LINK = "https://career.habr.com";
 
     public static void main(String[] args) throws IOException {
         /* Сначала мы формируем ссылку с учетом номера страницы и получаем саму страницу,

@@ -1,6 +1,5 @@
 package ru.job4j.quartz;
 
-
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -8,7 +7,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.sql.SQLOutput;
 
 public class HabrCareerParse {
     /* У нас есть три константы. Первая это ссылка на сайт в целом.
@@ -18,10 +16,20 @@ public class HabrCareerParse {
     public static final String SUFFIX = "&q=Java%20developer&type=all";
     private static final String SOURCE_LINK = "https://career.habr.com";
 
+    private String retrieveDescription(String link) throws IOException {
+        Connection connection = Jsoup.connect(link);
+        Document doc = connection.get();
+        Elements description = doc.select(".vacancy-description__text");
+        return description.getFirst().text();
+    }
+
     public static void main(String[] args) throws IOException {
-        /* Сначала мы формируем ссылку с учетом номера страницы и получаем саму страницу,
-         чтобы с ней можно было работать */
+        /*
+        цикл служит для перехода на новую страницу
+         */
         for (int pageNumber = 1; pageNumber < 6; pageNumber++) {
+            /* Сначала мы формируем ссылку с учетом номера страницы и получаем саму страницу,
+         чтобы с ней можно было работать */
             String fullLink = "%s%s%d%s".formatted(SOURCE_LINK, PREFIX, pageNumber, SUFFIX);
             Connection connection = Jsoup.connect(fullLink);
             Document document = connection.get();

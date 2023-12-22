@@ -15,13 +15,9 @@ public class HabrCareerParse {
     public static final String PREFIX = "/vacancies?page=";
     public static final String SUFFIX = "&q=Java%20developer&type=all";
     private static final String SOURCE_LINK = "https://career.habr.com";
-
-    private String retrieveDescription(String link) throws IOException {
-        Connection connection = Jsoup.connect(link);
-        Document doc = connection.get();
-        Elements description = doc.select(".vacancy-description__text");
-        return description.getFirst().text();
-    }
+    /*
+    метод для загрузки деталей объявления
+     */
 
     public static void main(String[] args) throws IOException {
         /*
@@ -58,5 +54,16 @@ public class HabrCareerParse {
                 System.out.printf("%s %s %s%n", vacancyName, vacancyDate, link);
             });
         }
+    }
+
+    private String retrieveDescription(String link) throws IOException {
+        Connection connection = Jsoup.connect(link);
+        Document doc = connection.get();
+        Elements description = doc.select(".vacancy-description__text");
+        /*
+        Если использовать метод getFirst(), то вылетает ошибка компиляции,
+        даже если метод не используется
+         */
+        return description.get(0).text();
     }
 }

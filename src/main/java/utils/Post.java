@@ -52,6 +52,17 @@ public class Post {
     }
 
     @Override
+    public String toString() {
+        return "Post{"
+                + "id=" + id
+                + ", title='" + title + '\''
+                + ", description='" + description + '\''
+                + ", created=" + created
+                + ", link='" + link + '\''
+                + '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

@@ -6,7 +6,7 @@ import java.util.Objects;
 public class Post {
 
     private int id;
-    private  String title;
+    private String title;
     private String description;
     private LocalDateTime created;
     private String link;

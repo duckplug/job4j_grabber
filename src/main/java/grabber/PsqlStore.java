@@ -4,8 +4,6 @@ import utils.Post;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,7 +29,7 @@ public class PsqlStore implements Store {
     @Override
     public void save(Post post) {
         try (PreparedStatement ps = connection.prepareStatement(
-                "INSERT INTO post(title, description, created, link) VALUES(?, ?, ?, ?)")) {
+                "INSERT INTO post.post(title, description, created, link) VALUES(?, ?, ?, ?)")) {
             ps.setString(1, post.getTitle());
             ps.setString(2, post.getDescription());
             ps.setTimestamp(3, Timestamp.valueOf(post.getCreated()));
@@ -53,8 +51,8 @@ public class PsqlStore implements Store {
         try (PreparedStatement ps = connection.prepareStatement(
                 "SELECT * FROM post.post")) {
             ResultSet rs = ps.executeQuery();
-            Post post = new Post();
             while (rs.next()) {
+                Post post = new Post();
                 post.setId(rs.getInt(1));
                 post.setTitle(rs.getString(2));
                 post.setDescription(rs.getString(3));
@@ -96,17 +94,33 @@ public class PsqlStore implements Store {
 
     public static void main(String[] args) throws SQLException {
         Properties prop = new Properties();
-        try (InputStream in = PsqlStore.class.getClassLoader().getResourceAsStream("grabber.properties")) {
+        try (InputStream in = PsqlStore.class.getClassLoader()
+                .getResourceAsStream("grabber.properties")) {
             prop.load(in);
         } catch (IOException e) {
             e.printStackTrace();
         }
         PsqlStore ps = new PsqlStore(prop);
+        LocalDateTime ldt = LocalDateTime.of(2024, 01, 12, 12, 12);
+        Post post1 = new Post();
+        post1.setLink("link_1");
+        post1.setDescription("description_1");
+        post1.setCreated(ldt);
+        post1.setTitle("POST-1");
+
+        Post post2 = new Post();
+        post1.setLink("link_2");
+        post1.setDescription("description_2");
+        post1.setCreated(ldt);
+        post1.setTitle("POST-2");
+
+        ps.save(post1);
+        ps.save(post2);
+
         List<Post> list =  ps.getAll();
         for (Post p : list) {
             System.out.println(p.toString());
         }
-
         System.out.println(ps.findById(1));
     }
 }

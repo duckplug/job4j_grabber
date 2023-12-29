@@ -1,3 +1,3 @@
 CREATE SCHEMA post
-CREATE TABLE IF NOT EXISTS post(id serial primary key, name text, text text, link text UNIQUE, created_date timestamp);
+CREATE TABLE IF NOT EXISTS post(id serial primary key, title text, description text, link text UNIQUE, created timestamp);
 SET search_path TO post, public;

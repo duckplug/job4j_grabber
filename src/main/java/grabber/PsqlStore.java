@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -21,15 +22,16 @@ public class PsqlStore implements Store {
             throw new IllegalStateException(e);
         }
         connection = DriverManager.getConnection(
-                        config.getProperty("url"),
-                        config.getProperty("username"),
-                        config.getProperty("password"));
+                config.getProperty("url"),
+                config.getProperty("username"),
+                config.getProperty("password"));
     }
 
     @Override
     public void save(Post post) {
         try (PreparedStatement ps = connection.prepareStatement(
-                "INSERT INTO post.post(title, description, created, link) VALUES(?, ?, ?, ?)")) {
+                "INSERT INTO post.post(title, description, created, link) VALUES(?, ?, ?, ?)"
+                        + "ON CONFLICT(link) DO NOTHING")) {
             ps.setString(1, post.getTitle());
             ps.setString(2, post.getDescription());
             ps.setTimestamp(3, Timestamp.valueOf(post.getCreated()));
@@ -100,8 +102,10 @@ public class PsqlStore implements Store {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        LocalDateTime ldt = LocalDateTime.parse("2023-12-29T12:27:28", formatter);
         PsqlStore ps = new PsqlStore(prop);
-        LocalDateTime ldt = LocalDateTime.of(2024, 01, 12, 12, 12);
         Post post1 = new Post();
         post1.setLink("link_1");
         post1.setDescription("description_1");
@@ -109,10 +113,10 @@ public class PsqlStore implements Store {
         post1.setTitle("POST-1");
 
         Post post2 = new Post();
-        post1.setLink("link_2");
-        post1.setDescription("description_2");
-        post1.setCreated(ldt);
-        post1.setTitle("POST-2");
+        post2.setLink("link_2");
+        post2.setDescription("description_2");
+        post2.setCreated(ldt);
+        post2.setTitle("POST-2");
 
         ps.save(post1);
         ps.save(post2);

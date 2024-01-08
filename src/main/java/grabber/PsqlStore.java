@@ -93,38 +93,4 @@ public class PsqlStore implements Store {
             connection.close();
         }
     }
-
-    public static void main(String[] args) throws SQLException {
-        Properties prop = new Properties();
-        try (InputStream in = PsqlStore.class.getClassLoader()
-                .getResourceAsStream("grabber.properties")) {
-            prop.load(in);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-        LocalDateTime ldt = LocalDateTime.parse("2023-12-29T12:27:28", formatter);
-        PsqlStore ps = new PsqlStore(prop);
-        Post post1 = new Post();
-        post1.setLink("link_1");
-        post1.setDescription("description_1");
-        post1.setCreated(ldt);
-        post1.setTitle("POST-1");
-
-        Post post2 = new Post();
-        post2.setLink("link_2");
-        post2.setDescription("description_2");
-        post2.setCreated(ldt);
-        post2.setTitle("POST-2");
-
-        ps.save(post1);
-        ps.save(post2);
-
-        List<Post> list =  ps.getAll();
-        for (Post p : list) {
-            System.out.println(p.toString());
-        }
-        System.out.println(ps.findById(1));
-    }
 }

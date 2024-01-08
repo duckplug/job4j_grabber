@@ -71,11 +71,4 @@ public class HabrCareerParse implements Parse {
         }
         return posts;
     }
-
-    public static void main(String[]args) throws IOException {
-        HabrCareerParse h = new HabrCareerParse(new HabrCareerDateTimeParser());
-        for (Post p: h.list("link")) {
-            System.out.println(p);
-        }
-    }
 }

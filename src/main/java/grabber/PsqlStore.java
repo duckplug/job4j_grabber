@@ -2,11 +2,7 @@ package grabber;
 
 import utils.Post;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -25,6 +21,16 @@ public class PsqlStore implements Store {
                 config.getProperty("url"),
                 config.getProperty("username"),
                 config.getProperty("password"));
+    }
+
+    private static Post postCreater(ResultSet rs) throws SQLException {
+        Post post = new Post();
+        post.setId(rs.getInt(1));
+        post.setTitle(rs.getString(2));
+        post.setDescription(rs.getString(3));
+        post.setLink(rs.getString(4));
+        post.setCreated(rs.getTimestamp(5).toLocalDateTime());
+        return post;
     }
 
     @Override
@@ -54,12 +60,7 @@ public class PsqlStore implements Store {
                 "SELECT * FROM post.post")) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                Post post = new Post();
-                post.setId(rs.getInt(1));
-                post.setTitle(rs.getString(2));
-                post.setDescription(rs.getString(3));
-                post.setLink(rs.getString(4));
-                post.setCreated(rs.getTimestamp(5).toLocalDateTime());
+                Post post = postCreater(rs);
                 posts.add(post);
             }
         } catch (SQLException e) {
@@ -76,11 +77,7 @@ public class PsqlStore implements Store {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             rs.next();
-            post.setId(rs.getInt(1));
-            post.setTitle(rs.getString(2));
-            post.setDescription(rs.getString(3));
-            post.setLink(rs.getString(4));
-            post.setCreated(rs.getTimestamp(5).toLocalDateTime());
+            post = postCreater(rs);
         } catch (SQLException e) {
             e.printStackTrace();
         }
